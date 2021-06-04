@@ -1,7 +1,7 @@
 // Game values
 let min = 1,
     max = 10,
-    winningNum = 2,
+    winningNum = getRandomNum(min, max),
     guessesLeft = 3;
 
 // UI Elements
@@ -16,42 +16,51 @@ const uiGame = document.querySelector("#game"),
 uiMinNum.textContent = min;
 uiMaxNum.textContent = max;
 
-// Listener for guess btn
-uiGuessBtn.addEventListener("click", function (e){
-  setMessage("", "");
+// guess btn event listener
+uiGuessBtn.addEventListener("click", function (e) {
+  if (e.target.classList.contains("play-again")) {
+    window.location.reload();
+  } else if (e.target.className === "") {
+    setMessage("", "");
   
-  let guess = parseInt(uiGuessInput.value);
+    let guess = parseInt(uiGuessInput.value);
 
-  // Validate
-  if (isNaN(guess) || guess < min || guess > max) {
-    setMessage(`Please enter a number between ${min} and ${max}`, "red");
-  } else {
-    // check if game won
-    if (guess === winningNum) {
-      // Game over - won
-      gameOver(true, `Please enter a number between ${min} and ${max}`);
+    // Validate
+    if (isNaN(guess) || guess < min || guess > max) {
+      setMessage(`Please enter a number between ${min} and ${max}.`, "red");
     } else {
-      // Wrong number
-      guessesLeft -= 1;
-
-      if (guessesLeft === 0) {
-        // Game over - lost
-        gameOver(false, `Game Over, you lost. The correct number was ${winningNum}`);
+      // check if game won
+      if (guess === winningNum) {
+        // Game over - won
+        gameOver(true, `${winningNum} is correct!, YOU WIN!`);
       } else {
-        // Game continue - answer wrong
-        // change border color
-        uiGuessInput.style.borderColor = "red";
-        
-        uiGuessInput.value = "";
+        // Wrong number
+        guessesLeft -= 1;
 
-        // tell user its the wrong number
-        setMessage(`${guess} is not correct, ${guessesLeft} guesses left`, "red");
+        if (guessesLeft === 0) {
+          // Game over - lost
+          gameOver(false, `Game Over, you lost. The correct number was ${winningNum}`);
+        } else {
+          // Game continue - answer wrong
+          // change border color
+          uiGuessInput.style.borderColor = "red";
+          
+          uiGuessInput.value = "";
+
+          // tell user its the wrong number
+          setMessage(`${guess} is not correct, ${guessesLeft} guesses left`, "red");
+        }
       }
     }
   }
 });
 
-// Game over
+// Get Winning num
+function getRandomNum(min, max) {
+  return Math.floor(Math.random() * (max - min + 1) + min);
+}
+
+// Game over function
 function gameOver(isWon, msg) {
   const color = isWon ? "green" : "red";
   
@@ -63,9 +72,12 @@ function gameOver(isWon, msg) {
 
   // set msg
   setMessage(msg, color);
+
+  uiGuessBtn.value = "Play Again";
+  uiGuessBtn.classList += "play-again";
 }
 
-// Set Message
+// Set Message function
 function setMessage(msg, color) {
   uiMessage.style.color = color;
   uiMessage.textContent = msg;
